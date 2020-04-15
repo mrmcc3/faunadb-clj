@@ -8,15 +8,21 @@
     (com.faunadb.client.query Language)
     (com.fasterxml.jackson.databind ObjectMapper)))
 
+(def ow (.writer (ObjectMapper.)))
+
+(defn lang->data [o]
+  (json/read-str (.writeValueAsString ow o)))
+
+(defn round-trip [v]
+  (json/read-str (json/write-str v)))
+
 (deftest query
-  (let [ow   (.writer (ObjectMapper.))
-        db1  (Language/Database "db1")
+  (let [db1  (Language/Database "db1")
         db1' (q/database "db1")
         c1   (Language/Collection "c1")
         c1'  (q/collection "c1")]
     (are [jvm clj]
-      (= (json/read-str (.writeValueAsString ow jvm))
-         (json/read-str (json/write-str clj)))
+      (= (lang->data jvm) (round-trip clj))
 
       ;; --- new-id
       (Language/NewId)
@@ -107,7 +113,28 @@
 
       ;; --- query
 
+      ;; --- var
+      (Language/Var "x")
+      (q/var "x")
+
+      ;; --- do
+      (Language/Do [db1 c1 (Language/Ref db1 "1")])
+      (q/do db1' c1' (q/ref db1' "1"))
+
+      ;; --- if
+      (Language/If (Language/Value true) db1 c1)
+      (q/if true db1' c1')
+
+      ;; --- let
+      (.in
+        (Language/Let
+          "x" (Language/Value 1)
+          "y" (Language/Value 2))
+        (Language/Do [(Language/Var "x") (Language/Var "y")]))
+      (q/let* ['x 1 'y 2] (q/do (q/var 'x) (q/var 'y)))
+
       ))
+
   )
 
 
