@@ -1,6 +1,7 @@
 (ns mrmcc3.fauna.http
-  "Http Client for making requests to FaunaDB. Uses  java.net.http.HTTPClient
-  which was introduced in Java 11"
+  "Http Client for making requests to FaunaDB. Uses java.net.http.HTTPClient
+  which was introduced in Java 11."
+  {:author "Michael McClintock"}
   (:require
     [mrmcc3.fauna.json :as json])
   (:import

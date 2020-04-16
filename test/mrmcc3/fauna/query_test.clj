@@ -6,7 +6,7 @@
     [clojure.test :refer :all]
     [kaocha.repl :as k])
   (:import
-    (com.faunadb.client.query Language)
+    (com.faunadb.client.query Language Language$Action)
     (com.fasterxml.jackson.databind ObjectMapper)
     (java.time Instant LocalDate)))
 
@@ -28,7 +28,9 @@
                 (Language/Var "a"))
         l1'   (q/lambda ["a"] (q/var' "a"))
         now   (Instant/now)
-        now-d (LocalDate/now)]
+        now-d (LocalDate/now)
+        obj1  (Language/Obj "data" (Language/Obj "name" (Language/Value "n")))
+        obj1' {:data {:name "n"}}]
     (are [jvm clj]
       (= (lang->data jvm) (round-trip clj))
 
@@ -207,21 +209,82 @@
       ;; Write
 
       ;; --- create
-      (Language/Create
-        c1 (Language/Obj "data" (Language/Obj "name" (Language/Value "n"))))
-      (q/create c1' {:data {:name "n"}})
+      (Language/Create c1 obj1)
+      (q/create c1' obj1')
 
       ;; --- create-collection
+      (Language/CreateCollection obj1)
+      (q/create-collection obj1')
+
       ;; --- create-database
+      (Language/CreateDatabase obj1)
+      (q/create-database obj1')
+
       ;; --- create-function
+      (Language/CreateFunction obj1)
+      (q/create-function obj1')
+
       ;; --- create-index
+      (Language/CreateIndex obj1)
+      (q/create-index obj1')
+
       ;; --- create-key
+      (Language/CreateKey obj1)
+      (q/create-key obj1')
+
       ;; --- create-role
+      (Language/CreateRole obj1)
+      (q/create-role obj1')
+
       ;; --- delete
+      (Language/Delete c1)
+      (q/delete c1')
+
       ;; --- insert
+      (Language/Insert c1 (Language/Value 1) (Language$Action/CREATE) obj1)
+      (q/insert c1' 1 :create obj1')
+
       ;; --- remove
+      (Language/Remove c1 (Language/Value 1) (Language$Action/DELETE))
+      (q/remove c1' 1 :delete)
+
       ;; --- replace
+      (Language/Replace c1 obj1)
+      (q/replace c1' obj1')
+
       ;; --- update
+      (Language/Update c1 obj1)
+      (q/update c1' obj1')
+
+      ;; Object
+
+      ;; --- merge
+      (Language/Merge obj1 obj1)
+      (q/merge obj1' obj1')
+      (Language/Merge obj1 obj1 l1)
+      (q/merge obj1' obj1' l1')
+
+      ;; --- to-array
+      (Language/ToArray obj1)
+      (q/to-array obj1')
+
+      ;; Array
+
+      ;; Set
+
+      ;; Logical
+
+      ;; Authentication
+
+      ;; String
+
+      ;; Time
+
+      ;; Conversion
+
+      ;; Math
+
+      ;; Type Checks
 
       ))
 

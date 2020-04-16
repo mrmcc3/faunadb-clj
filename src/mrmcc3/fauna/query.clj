@@ -1,7 +1,9 @@
 (ns mrmcc3.fauna.query
   "A clojure implementation of FQL 2.11.0"
   {:author "Michael McClintock"}
-  (:refer-clojure :exclude [ref get]))
+  (:refer-clojure
+    :exclude
+    [ref get remove replace update merge to-array]))
 
 ;; Basic
 
@@ -157,26 +159,87 @@
   [coll-ref params] ^:op
   {:create coll-ref :params params})
 
-(comment
+(defn create-collection
+  "Create a collection"
+  [params] ^:op
+  {:create_collection params})
 
-  (require '[mrmcc3.fauna.query-test :as t])
-  (import '(com.faunadb.client.query Language)
-          '(java.time Instant))
+(defn create-database
+  "Create a database"
+  [params] ^:op
+  {:create_database params})
 
-  (t/lang->data
+(defn create-function
+  "Create a user-defined function"
+  [params] ^:op
+  {:create_function params})
 
-    #_(Language/Query
-        (Language/Lambda
-          (Language/Arr [(Language/Value "a")])
-          (Language/Var "a")))
+(defn create-index
+  "Create an index"
+  [params] ^:op
+  {:create_index params})
 
-    )
+(defn create-key
+  "Create a key"
+  [params] ^:op
+  {:create_key params})
 
-  (require '[mrmcc3.fauna.http :as http])
+(defn create-role
+  "Create a role"
+  [params] ^:op
+  {:create_role params})
 
-  (time
-    (http/invoke
-      (http/client {})
-      {:data (databases)}))
+(defn delete
+  "Delete a document, key, index, collection, or database"
+  [ref] ^:op
+  {:delete ref})
 
-  )
+(defn insert
+  "Add an event to a document's history"
+  [ref ts action params] ^:op
+  {:insert ref :ts ts :action action :params params})
+
+(defn remove
+  "Remove an event from a documents history"
+  [ref ts action] ^:op
+  {:remove ref :ts ts :action action})
+
+(defn replace
+  "Replace a document with a new document"
+  [ref params] ^:op
+  {:replace ref :params params})
+
+(defn update
+  "Replace a document with a new document"
+  [ref params] ^:op
+  {:update ref :params params})
+
+;; Object
+
+(defn merge
+  "Merge two objects into one, with an optional resolver lambda"
+  ([obj1 obj2] ^:op {:merge obj1 :with obj2})
+  ([obj1 obj2 lambda] ^:op {:merge obj1 :with obj2 :lambda lambda}))
+
+(defn to-array
+  "Converts an object to an array"
+  [obj] ^:op
+  {:to_array obj})
+
+;; Array
+
+;; Set
+
+;; Logical
+
+;; Authentication
+
+;; String
+
+;; Time
+
+;; Conversion
+
+;; Math
+
+;; Type Checks
