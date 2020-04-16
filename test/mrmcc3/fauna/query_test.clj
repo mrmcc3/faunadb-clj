@@ -177,6 +177,49 @@
       (Language/Query l1)
       (q/query l1')
 
+      ;; Read
+
+      ;; --- get
+      (Language/Get c1)
+      (q/get c1')
+      (Language/Get c1 now)
+      (q/get c1' now)
+
+      ;; --- key-from-secret
+      (Language/KeyFromSecret "s")
+      (q/key-from-secret "s")
+
+      ;; --- paginate
+      (Language/Paginate c1)
+      (q/paginate c1')
+
+      ;; --- select
+      (Language/Select
+        (Language/Arr [(Language/Value "a") (Language/Value 1)])
+        (Language/Obj "a" (Language/Value true) "b" (Language/Value 2)))
+      (q/select ["a" 1] {:a true :b 2})
+      (Language/Select
+        (Language/Arr [(Language/Value "a") (Language/Value 1)])
+        (Language/Obj "a" (Language/Value true) "b" (Language/Value 2))
+        (Language/Obj "b" (Language/Value now)))
+      (q/select [:a 1] {:a true :b 2} {:b now})
+
+      ;; Write
+
+      ;; --- create
+      ;; --- create-collection
+      ;; --- create-database
+      ;; --- create-function
+      ;; --- create-index
+      ;; --- create-key
+      ;; --- create-role
+      ;; --- delete
+      ;; --- insert
+      ;; --- remove
+      ;; --- replace
+      ;; --- update
+
+
       ))
 
   (comment

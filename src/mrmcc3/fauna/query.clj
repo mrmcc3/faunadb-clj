@@ -124,6 +124,31 @@
   [lambda]
   {:query lambda})
 
+;; Read
+
+(defn get
+  "Retrieves the document for the specific reference"
+  ([ref] {:get ref})
+  ([ref ts] {:get ref :ts ts}))
+
+(defn key-from-secret
+  "Retrieves a key based on its secret"
+  [secret]
+  {:key_from_secret secret})
+
+(defn paginate
+  "Returns a subset of query results"
+  [input]
+  {:paginate input})
+
+(defn select
+  "Retrieves a specific field value from a document"
+  ([path from]
+   {:select path :from {:object from}})
+  ([path from default]
+   {:select  path
+    :from    {:object from}
+    :default {:object default}}))
 
 (comment
 
