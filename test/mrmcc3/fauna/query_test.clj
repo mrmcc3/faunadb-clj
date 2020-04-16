@@ -1,43 +1,57 @@
 (ns mrmcc3.fauna.query-test
   (:require
     [mrmcc3.fauna.query :as q]
+    [mrmcc3.fauna.json :as json]
+    [clojure.data.json :refer [read-str]]
     [clojure.test :refer :all]
-    [clojure.data.json :as json]
     [kaocha.repl :as k])
   (:import
     (com.faunadb.client.query Language)
     (com.fasterxml.jackson.databind ObjectMapper)
-    (java.time Instant)))
+    (java.time Instant LocalDate)))
 
 (def ow (.writer (ObjectMapper.)))
 
 (defn lang->data [o]
-  (json/read-str (.writeValueAsString ow o)))
+  (read-str (.writeValueAsString ow o)))
 
 (defn round-trip [v]
-  (json/read-str (json/write-str v)))
+  (read-str (json/write-str v)))
 
-(deftest query
-  (let [db1  (Language/Database "db1")
-        db1' (q/database "db1")
-        c1   (Language/Collection "c1")
-        c1'  (q/collection "c1")
-        l1   (Language/Lambda
-               (Language/Arr [(Language/Value "a")])
-               (Language/Var "a"))
-        l1'  (q/lambda ["a"] (q/var' "a"))
-        now  (Instant/now)]
+(deftest query-encoding
+  (let [db1   (Language/Database "db1")
+        db1'  (q/database "db1")
+        c1    (Language/Collection "c1")
+        c1'   (q/collection "c1")
+        l1    (Language/Lambda
+                (Language/Arr [(Language/Value "a")])
+                (Language/Var "a"))
+        l1'   (q/lambda ["a"] (q/var' "a"))
+        now   (Instant/now)
+        now-d (LocalDate/now)]
     (are [jvm clj]
       (= (lang->data jvm) (round-trip clj))
 
       ;; Special Types
       ;; https://docs.fauna.com/fauna/current/api/fql/types#special-types
 
+      ;; --- Instant
+      (Language/Value now)
+      now
+
+      ;; --- Date
+      (Language/Value now-d)
+      now-d
+
+      ;; --- byte[]
+      (Language/Value (.getBytes "test"))
+      (.getBytes "test")
 
       ;; Basic
 
       ;; --- at
-      ;; TODO
+      (Language/At now (Language/Value "f"))
+      (q/at now "f")
 
       ;; --- call
       (Language/Call (Language/Function "f") [(Language/Value 1)])
@@ -163,11 +177,14 @@
       (Language/Query l1)
       (q/query l1')
 
-      )))
+      ))
 
+  (comment
 
+    (lang->data
+      (Language/At
+        (Instant/now)
+        (Language/Value "f")))
 
-
-
-
+    ))
 

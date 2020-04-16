@@ -6,10 +6,11 @@ A clojure driver for FaunaDB.
 
 ### Todo
 
-- extend json to encode extra literals. Incl tests against faunadb-jvm
-    - Byte
-    - Dates. java.time equiv
-    - Timestamp. java.util.Date, java.time    
+- at some point we might have to move from c.d.json to something jackson based.
+something like metosin/jsonista. But I'll see how far I can get.
 - impl. write query ops
-- attempt macros
-    
+- attempt macros.
+
+```
+$ clojure -A:test -m kaocha.runner
+```

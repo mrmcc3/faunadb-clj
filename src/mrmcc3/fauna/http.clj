@@ -1,6 +1,8 @@
 (ns mrmcc3.fauna.http
+  "Http Client for making requests to FaunaDB. Uses  java.net.http.HTTPClient
+  which was introduced in Java 11"
   (:require
-    [clojure.data.json :as json])
+    [mrmcc3.fauna.json :as json])
   (:import
     (java.net.http
       HttpClient
