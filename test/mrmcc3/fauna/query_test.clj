@@ -207,6 +207,10 @@
       ;; Write
 
       ;; --- create
+      (Language/Create
+        c1 (Language/Obj "data" (Language/Obj "name" (Language/Value "n"))))
+      (q/create c1' {:data {:name "n"}})
+
       ;; --- create-collection
       ;; --- create-database
       ;; --- create-function
@@ -218,7 +222,6 @@
       ;; --- remove
       ;; --- replace
       ;; --- update
-
 
       ))
 

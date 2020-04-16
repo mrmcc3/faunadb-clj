@@ -1,154 +1,161 @@
 (ns mrmcc3.fauna.query
   "A clojure implementation of FQL 2.11.0"
   {:author "Michael McClintock"}
-  (:refer-clojure :exclude [ref]))
+  (:refer-clojure :exclude [ref get]))
 
 ;; Basic
 
 (defn at
   "Retrieves documents at or before a timestamp"
-  [timestamp expression]
+  [timestamp expression] ^:op
   {:at timestamp :expr expression})
 
 (defn call
   "Executes a user-defined function"
-  [function & args]
+  [function & args] ^:op
   {:call      function
    :arguments (if (next args) args (first args))})
 
 (defn do'
   "Execute expressions in order"
-  [& exprs]
+  [& exprs] ^:op
   {:do exprs})
 
 (defn if'
   "Executes an expression based on a boolean condition"
-  [test then else]
+  [test then else] ^:op
   {:if test :then then :else else})
 
 (defn lambda
   ""
-  [params expression]
+  [params expression] ^:op
   {:lambda params :expr expression})
 
 (defn let'
   ""
-  [bindings in]
+  [bindings in] ^:op
   {:let (map (fn [[k v]] {k v}) (partition 2 bindings))
    :in  in})
 
 (defn var'
   "Uses a variables value"
-  [name]
+  [name] ^:op
   {:var name})
 
 ;; Miscellaneous
 
 (defn new-id
   "Generates a unique, numeric id"
-  []
+  [] ^:op
   {:new_id nil})
 
 (defn abort
   "Terminates the current transaction"
-  [message]
+  [message] ^:op
   {:abort message})
 
 (defn database
   "Returns the ref for a database"
-  ([name] {:database name})
-  ([name database] {:database name :scope database}))
+  ([name] ^:op {:database name})
+  ([name database] ^:op {:database name :scope database}))
 
 (defn databases
   "Returns an array of refs for all collections"
-  ([] {:databases nil})
-  ([database] {:databases database}))
+  ([] (databases nil))
+  ([database] ^:op {:databases database}))
 
 (defn move-database
   "Moves a database into another, parent database"
-  [from to]
+  [from to] ^:op
   {:move_database from :to to})
 
 (defn collection
   "Returns the ref for a collection"
-  ([name] {:collection name})
-  ([name database] {:collection name :scope database}))
+  ([name] ^:op {:collection name})
+  ([name database] ^:op {:collection name :scope database}))
 
 (defn collections
   "Returns an array of refs for all collections"
-  ([] {:collections nil})
-  ([database] {:collections database}))
+  ([] (collections nil))
+  ([database] ^:op {:collections database}))
 
 (defn function
   "Returns the ref for a user defined function"
-  ([name] {:function name})
-  ([name database] {:function name :scope database}))
+  ([name] ^:op {:function name})
+  ([name database] ^:op {:function name :scope database}))
 
 (defn functions
   "Returns an array of refs for all user-defined functions"
-  ([] {:functions nil})
-  ([database] {:functions database}))
+  ([] (functions nil))
+  ([database] ^:op {:functions database}))
 
 (defn index
   "Returns the ref for an index"
-  ([name] {:index name})
-  ([name database] {:index name :scope database}))
+  ([name] ^:op {:index name})
+  ([name database] ^:op {:index name :scope database}))
 
 (defn indexes
   "Returns an array of refs for all indexes"
-  ([] {:indexes nil})
-  ([database] {:indexes database}))
+  ([] (indexes nil))
+  ([database] ^:op {:indexes database}))
 
 (defn role
   "Returns the ref for a user-defined role"
-  ([name] {:role name})
-  ([name database] {:role name :scope database}))
+  ([name] ^:op {:role name})
+  ([name database] ^:op {:role name :scope database}))
 
 (defn roles
   "Returns an array of refs for all user-defined roles"
-  ([] {:roles nil})
-  ([database] {:roles database}))
+  ([] (roles nil))
+  ([database] ^:op {:roles database}))
 
 (defn documents
   "Returns the set of documents within a collection"
-  [collection]
+  [collection] ^:op
   {:documents collection})
 
 (defn ref
   "Returns a reference to a specific document in a collection"
-  [schema-ref id]
+  [schema-ref id] ^:op
   {:ref schema-ref :id id})
 
 (defn query
   "Defers execution of a Lambda function"
-  [lambda]
+  [lambda] ^:op
   {:query lambda})
 
 ;; Read
 
 (defn get
   "Retrieves the document for the specific reference"
-  ([ref] {:get ref})
-  ([ref ts] {:get ref :ts ts}))
+  ([ref] ^:op {:get ref})
+  ([ref ts] ^:op {:get ref :ts ts}))
 
 (defn key-from-secret
   "Retrieves a key based on its secret"
-  [secret]
+  [secret] ^:op
   {:key_from_secret secret})
 
 (defn paginate
   "Returns a subset of query results"
-  [input]
+  [input] ^:op
   {:paginate input})
 
 (defn select
   "Retrieves a specific field value from a document"
-  ([path from]
-   {:select path :from {:object from}})
-  ([path from default]
+  ([path from] ^:op
+   {:select path :from from})
+  ([path from default] ^:op
    {:select  path
-    :from    {:object from}
-    :default {:object default}}))
+    :from    from
+    :default default}))
+
+;; Write
+
+(defn create
+  "Create a document in a collection"
+  [coll-ref params] ^:op
+  {:create coll-ref :params params})
 
 (comment
 
