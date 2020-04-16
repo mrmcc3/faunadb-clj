@@ -3,7 +3,8 @@
   {:author "Michael McClintock"}
   (:refer-clojure
     :exclude
-    [ref get remove replace update merge to-array]))
+    [ref get remove replace update merge to-array count
+     distinct drop max min]))
 
 ;; Basic
 
@@ -226,7 +227,82 @@
   [obj] ^:op
   {:to_array obj})
 
-;; Array
+;; Array & Set
+
+(defn all
+  "Tests whether all of the provided values are true"
+  [vals] ^:op
+  {:all vals})
+
+(defn any
+  "Tests whether any of the provided values are true"
+  [vals] ^:op
+  {:any vals})
+
+(defn append
+  "Tests whether any of the provided values are true"
+  [vals base] ^:op
+  {:append vals :collection base})
+
+(defn count
+  "Counts the items in an array or set"
+  [coll] ^:op
+  {:count coll})
+
+(defn difference
+  "Returns an array of items in one array that are missing in the others"
+  [& colls] ^:op
+  {:difference colls})
+
+(defn intersection
+  "Returns an array of items that exist in all arrays"
+  [& colls] ^:op
+  {:intersection colls})
+
+(defn union
+  "Returns an array that combines the items in multiple arrays"
+  [& colls] ^:op
+  {:union colls})
+
+(defn distinct
+  "Returns an array of distinct items within multiple arrays"
+  [coll] ^:op
+  {:distinct coll})
+
+(defn drop
+  "Removes items from start of array"
+  [n coll] ^:op
+  {:drop n :collection coll})
+
+(defn is-empty
+  "Test whether an array is empty"
+  [coll] ^:op
+  {:is_empty coll})
+
+(defn is-non-empty
+  "Test whether an array contains items"
+  [coll] ^:op
+  {:is_nonempty coll})
+
+(defn sum
+  "Sums the items in an collection"
+  [coll] ^:op
+  {:sum coll})
+
+(defn mean
+  "Returns the average value in the collection"
+  [coll] ^:op
+  {:mean coll})
+
+(defn max
+  "Returns the largest value"
+  [& args]
+  {:max args})
+
+(defn min
+  "Returns the smallest value"
+  [& args]
+  {:min args})
 
 ;; Set
 

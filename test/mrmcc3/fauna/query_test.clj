@@ -268,9 +268,71 @@
       (Language/ToArray obj1)
       (q/to-array obj1')
 
-      ;; Array
+      ;; Array & Set
 
-      ;; Set
+      ;; --- all
+      (Language/All (Language/Arr [(Language/Value true)]))
+      (q/all [true])
+
+      ;; --- any
+      (Language/Any (Language/Arr [(Language/Value true)]))
+      (q/any [true])
+
+      ;; --- append
+      (Language/Append
+        (Language/Arr [(Language/Value 1)])
+        (Language/Arr [(Language/Value 2)]))
+      (q/append [1] [2])
+
+      ;; --- count
+      (Language/Count (Language/Arr [(Language/Value 1)]))
+      (q/count [1])
+
+      ;; --- difference
+      (Language/Difference (repeat 3 (Language/Arr [obj1])))
+      (apply q/difference (repeat 3 [obj1']))
+
+      ;; --- intersection
+      (Language/Intersection (repeat 3 (Language/Arr [obj1])))
+      (apply q/intersection (repeat 3 [obj1']))
+
+      ;; --- union
+      (Language/Union (repeat 3 (Language/Arr [1])))
+      (apply q/union (repeat 3 [1]))
+
+      ;; --- distinct
+      (Language/Distinct (Language/Arr [(Language/Value 1) obj1]))
+      (q/distinct [1 obj1'])
+
+      ;; --- drop
+      (Language/Drop
+        (Language/Value 1)
+        (Language/Arr [(Language/Value 1)]))
+      (q/drop 1 [1])
+
+      ;; --- is-empty
+      (Language/IsEmpty (Language/Arr []))
+      (q/is-empty [])
+
+      ;; --- is-non-empty
+      (Language/IsNonEmpty (Language/Arr []))
+      (q/is-non-empty [])
+
+      ;; --- sum
+      (Language/Sum (Language/Arr [1 2 3]))
+      (q/sum [1 2 3])
+
+      ;; --- mean
+      (Language/Mean (Language/Arr [1 2 3]))
+      (q/mean [1 2 3])
+
+      ;; --- max
+      (Language/Max [1 2 3])
+      (q/max 1 2 3)
+
+      ;; --- min
+      (Language/Min [1 2 3])
+      (q/min 1 2 3)
 
       ;; Logical
 
