@@ -6,7 +6,8 @@
     [kaocha.repl :as k])
   (:import
     (com.faunadb.client.query Language)
-    (com.fasterxml.jackson.databind ObjectMapper)))
+    (com.fasterxml.jackson.databind ObjectMapper)
+    (java.time Instant)))
 
 (def ow (.writer (ObjectMapper.)))
 
@@ -20,9 +21,56 @@
   (let [db1  (Language/Database "db1")
         db1' (q/database "db1")
         c1   (Language/Collection "c1")
-        c1'  (q/collection "c1")]
+        c1'  (q/collection "c1")
+        l1   (Language/Lambda
+               (Language/Arr [(Language/Value "a")])
+               (Language/Var "a"))
+        l1'  (q/lambda ["a"] (q/var' "a"))
+        now  (Instant/now)]
     (are [jvm clj]
       (= (lang->data jvm) (round-trip clj))
+
+      ;; Special Types
+      ;; https://docs.fauna.com/fauna/current/api/fql/types#special-types
+
+
+      ;; Basic
+
+      ;; --- at
+      ;; TODO
+
+      ;; --- call
+      (Language/Call (Language/Function "f") [(Language/Value 1)])
+      (q/call (q/function "f") 1)
+      (Language/Call
+        (Language/Function "f")
+        [(Language/Value 1) (Language/Value 2)])
+      (q/call (q/function "f") 1 2)
+
+      ;; --- do
+      (Language/Do [db1 c1 (Language/Ref db1 "1")])
+      (q/do' db1' c1' (q/ref db1' "1"))
+
+      ;; --- if
+      (Language/If (Language/Value true) db1 c1)
+      (q/if' true db1' c1')
+
+      ;; --- lambda
+      l1 l1'
+
+      ;; --- let
+      (.in
+        (Language/Let
+          "x" (Language/Value 1)
+          "y" (Language/Value 2))
+        (Language/Do [(Language/Var "x") (Language/Var "y")]))
+      (q/let' ["x" 1 "y" 2] (q/do' (q/var' "x") (q/var' "y")))
+
+      ;; --- var
+      (Language/Var "x")
+      (q/var' "x")
+
+      ;; Miscellaneous
 
       ;; --- new-id
       (Language/NewId)
@@ -112,33 +160,10 @@
       (q/ref (q/function "f") "1")
 
       ;; --- query
+      (Language/Query l1)
+      (q/query l1')
 
-      ;; --- var
-      (Language/Var "x")
-      (q/var "x")
-
-      ;; --- do
-      (Language/Do [db1 c1 (Language/Ref db1 "1")])
-      (q/do db1' c1' (q/ref db1' "1"))
-
-      ;; --- if
-      (Language/If (Language/Value true) db1 c1)
-      (q/if true db1' c1')
-
-      ;; --- let
-      (.in
-        (Language/Let
-          "x" (Language/Value 1)
-          "y" (Language/Value 2))
-        (Language/Do [(Language/Var "x") (Language/Var "y")]))
-      (q/let* ['x 1 'y 2] (q/do (q/var 'x) (q/var 'y)))
-
-      ))
-
-  )
-
-
-
+      )))
 
 
 

@@ -1,7 +1,48 @@
 (ns mrmcc3.fauna.query
-  "Based on FQL 2.11.0"
+  "A clojure implementation of FQL 2.11.0"
   {:author "Michael McClintock"}
   (:refer-clojure :exclude [ref]))
+
+;; Basic
+
+(defn at
+  "Retrieves documents at or before a timestamp"
+  [timestamp expression]
+  {:at timestamp :expr expression})
+
+(defn call
+  "Executes a user-defined function"
+  [function & args]
+  {:call      function
+   :arguments (if (next args) args (first args))})
+
+(defn do'
+  "Execute expressions in order"
+  [& exprs]
+  {:do exprs})
+
+(defn if'
+  "Executes an expression based on a boolean condition"
+  [test then else]
+  {:if test :then then :else else})
+
+(defn lambda
+  ""
+  [params expression]
+  {:lambda params :expr expression})
+
+(defn let'
+  ""
+  [bindings in]
+  {:let (map (fn [[k v]] {k v}) (partition 2 bindings))
+   :in  in})
+
+(defn var'
+  "Uses a variables value"
+  [name]
+  {:var name})
+
+;; Miscellaneous
 
 (defn new-id
   "Generates a unique, numeric id"
@@ -78,47 +119,24 @@
   [schema-ref id]
   {:ref schema-ref :id id})
 
-(defn var
-  "Uses a variables value"
-  [name]
-  {:var name})
+(defn query
+  "Defers execution of a Lambda function"
+  [lambda]
+  {:query lambda})
 
-(defn do
-  "Execute expressions in order"
-  [& exprs]
-  {:do exprs})
-
-(defn if
-  "Executes an expression based on a boolean condition"
-  [test then else]
-  {:if test :then then :else else})
-
-(defn let*
-  ""
-  [bindings in]
-  {:let (map (fn [[k v]] {k v}) (partition 2 bindings))
-   :in  in})
-
-(defn lambda
-  ""
-  [params expression]
-  {:lambda params :expr expression})
 
 (comment
 
   (require '[mrmcc3.fauna.query-test :as t])
-  (import '(com.faunadb.client.query Language))
+  (import '(com.faunadb.client.query Language)
+          '(java.time Instant))
 
   (t/lang->data
-    (Language/Lambda
-      (Language/Arr [(Language/Value "a")])
-      (Language/Var "a")
-      )
-    #_(.in
-      (Language/Let
-        "x" (Language/Value 1)
-        "y" (Language/Value 2))
-      (Language/Do [(Language/Var "x") (Language/Var "y")]))
+
+    #_(Language/Query
+        (Language/Lambda
+          (Language/Arr [(Language/Value "a")])
+          (Language/Var "a")))
 
     )
 
