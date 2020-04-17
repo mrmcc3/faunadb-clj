@@ -395,7 +395,77 @@
 
       ;; Logical
 
+      ;; --- not
+      (Language/Not (Language/Value true))
+      (q/not true)
+
+      ;; --- and
+      (Language/And [(Language/Value true) (Language/Value false)])
+      (q/and true false)
+
+      ;; --- or
+      (Language/Or [(Language/Value true) (Language/Value false)])
+      (q/or true false)
+
+      ;; --- equals
+      (Language/Equals [(Language/Value true) (Language/Value false)])
+      (q/equals true false)
+
+      ;; --- LT
+      (Language/LT [(Language/Value 1) (Language/Value 2)])
+      (q/LT 1 2)
+
+      ;; --- LTE
+      (Language/LTE [(Language/Value 1) (Language/Value 2)])
+      (q/LTE 1 2)
+
+      ;; --- GT
+      (Language/GT [(Language/Value 1) (Language/Value 2)])
+      (q/GT 1 2)
+
+      ;; --- GTE
+      (Language/GTE [(Language/Value 1) (Language/Value 2)])
+      (q/GTE 1 2)
+
+      ;; --- contains
+      (Language/Contains
+        (Language/Arr [(Language/Value "a") (Language/Value "b")])
+        (Language/Obj "a" (Language/Obj "b" (Language/Value now))))
+      (q/contains ["a" "b"] {:a {:b now}})
+
+      ;; --- exists
+      (Language/Exists (Language/Ref c1 "1"))
+      (q/exists (q/ref c1' "1"))
+      (Language/Exists (Language/Ref c1 "1") (Language/Value now))
+      (q/exists (q/ref c1' "1") now)
+
       ;; Authentication
+
+      ;; --- has-identity
+      (Language/HasIdentity)
+      (q/has-identity)
+
+      ;; --- identify
+      (Language/Identify (Language/Ref c1 "1") (Language/Value "p"))
+      (q/identify (q/ref c1' "1") "p")
+
+      ;; --- identity
+      (Language/Identity)
+      (q/identity)
+
+      ;; --- keys
+      (Language/Keys)
+      (q/keys)
+      (Language/Keys db1)
+      (q/keys db1')
+
+      ;; --- login
+      (Language/Login (Language/Ref c1 "1") obj1)
+      (q/login (q/ref c1' "1") obj1')
+
+      ;; --- logout
+      (Language/Logout true)
+      (q/logout true)
 
       ;; String
 

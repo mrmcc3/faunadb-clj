@@ -4,7 +4,8 @@
   (:refer-clojure
     :exclude
     [ref get remove replace update merge to-array count
-     distinct drop take max min map filter reduce range])
+     distinct drop take max min map filter reduce range
+     not and or identity keys])
   (:require
     [clojure.core :as c]))
 
@@ -366,11 +367,91 @@
   [arr] ^:op
   {:to_object arr})
 
-;; Set
-
 ;; Logical
 
+(defn not
+  "Return the opposite of a boolean expression"
+  [val] ^:op
+  {:not val})
+
+(defn and
+  "Returns true if all values are true"
+  [& vals] ^:op
+  {:and vals})
+
+(defn or
+  "Returns true if any value is true"
+  [& vals] ^:op
+  {:or vals})
+
+(defn equals
+  "Returns true if all values are equivalent"
+  [& vals] ^:op
+  {:equals vals})
+
+(defn LT
+  "Returns true if each value is less than all the following values"
+  [& vals] ^:op
+  {:lt vals})
+
+(defn LTE
+  "Returns true if each value is less than, or equal to,
+  all the following values"
+  [& vals] ^:op
+  {:lte vals})
+
+(defn GT
+  "Returns true if each value is greater than all the following values"
+  [& vals] ^:op
+  {:gt vals})
+
+(defn GTE
+  "Returns true if each value is greater than, or equal to,
+  all the following values"
+  [& vals] ^:op
+  {:gte vals})
+
+(defn contains
+  "Returns true when a value exists at the given path"
+  [path in] ^:op
+  {:contains path :in in})
+
+(defn exists
+  "Returns true if a document has an event at a specific time"
+  ([ref] ^:op {:exists ref})
+  ([ref ts] ^:op {:exists ref :ts ts}))
+
 ;; Authentication
+
+(defn has-identity
+  "Checks whether the current client has credentials"
+  [] ^:op
+  {:has_identity nil})
+
+(defn identify
+  "Verifies an identity's credentials"
+  [ref password] ^:op
+  {:identify ref :password password})
+
+(defn identity
+  "Fetches the identities auth token"
+  [] ^:op
+  {:identity nil})
+
+(defn keys
+  "Retrieves keys associated with the specified database"
+  ([] (keys nil))
+  ([db] ^:op {:keys db}))
+
+(defn login
+  "Creates an auth token for an identity"
+  [ref params] ^:op
+  {:login ref :params params})
+
+(defn logout
+  "Logs out of the current (or all) sessions"
+  ([] (logout nil))
+  ([all] ^:op {:logout all}))
 
 ;; String
 

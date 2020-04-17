@@ -1,4 +1,6 @@
 (ns mrmcc3.fauna.query.specs
+  "Specs for FQL 2.11.0"
+  {:author "Michael McClintock"}
   (:require
     [clojure.alpha.spec :as s]
     [mrmcc3.fauna.query :as q]))
@@ -132,15 +134,3 @@
 (s/fdef ref
   :args (s/cat :schema-ref ::schema-ref :id string?)
   :ret (s/select ::schema-ref-schema [:ref :id]))
-
-(comment
-
-  (require
-    '[clojure.alpha.spec.test :as test]
-    '[clojure.alpha.spec.gen :as gen])
-
-  (test/instrument)
-  (test/check `q/new-id)
-  (s/exercise-fn `q/new-id)
-
-  )

@@ -3,14 +3,15 @@
 
 A clojure driver for FaunaDB.
 
-
 ### Todo
 
-- at some point we might have to move from c.d.json to something jackson based.
-something like metosin/jsonista. But I'll see how far I can get.
-    - yep i've found something it can't handle. array of objects
-- impl. write query ops
-- attempt macros.
+- complete query ops
+- attempt macros
+- look at fauna response decoding
+- per query metrics. https://docs.fauna.com/fauna/current/concepts/billing#perquery
+- REPL use
+- REBL use, datafy/nav seems like a fit
+- Spec integration
 
 ```
 $ clojure -A:test
