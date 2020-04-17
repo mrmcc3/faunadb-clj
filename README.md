@@ -1,7 +1,7 @@
 
 ### faunadb-clj
 
-A clojure driver for FaunaDB.
+An experimental clojure driver for FaunaDB. Requires Java 11.
 
 ### Todo
 
