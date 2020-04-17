@@ -45,7 +45,8 @@
 (defn update-client-state
   [{:keys [last-seen read-ops write-ops query-out]
     :or   {last-seen 0 read-ops 0 write-ops 0 query-out 0}}
-   {:keys [x-txn-time x-read-ops x-write-ops x-query-bytes-out]}]
+   {:keys [x-txn-time x-read-ops x-write-ops x-query-bytes-out]
+    :or {x-txn-time 0 x-read-ops 0 x-write-ops 0 x-query-bytes-out 0}}]
   {:last-seen (if (< last-seen x-txn-time) x-txn-time last-seen)
    :read-ops  (+ read-ops x-read-ops)
    :write-ops (+ write-ops x-write-ops)
@@ -67,7 +68,7 @@
   (let [headers  (headers-map response)
         response (with-meta
                    (json/read-str (.body response))
-                   {:headers headers})]
+                   headers)]
     (swap! state update-client-state headers)
     (if (:errors response)
       (throw (ex-info "FQL Error" response))
