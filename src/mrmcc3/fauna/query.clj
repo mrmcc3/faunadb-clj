@@ -37,7 +37,7 @@
 (defn let'
   ""
   [bindings in] ^:op
-  {:let (map (fn [[k v]] {k v}) (partition 2 bindings))
+  {:let (map (fn [[k v]] ^:op {k v}) (partition 2 bindings))
    :in  in})
 
 (defn var'
@@ -296,12 +296,12 @@
 
 (defn max
   "Returns the largest value"
-  [& args]
+  [& args] ^:op
   {:max args})
 
 (defn min
   "Returns the smallest value"
-  [& args]
+  [& args] ^:op
   {:min args})
 
 ;; Set

@@ -2,7 +2,7 @@
   (:require
     [mrmcc3.fauna.query :as q]
     [mrmcc3.fauna.json :as json]
-    [clojure.data.json :refer [read-str]]
+    [clojure.data.json :as data.json]
     [clojure.test :refer :all]
     [kaocha.repl :as k])
   (:import
@@ -13,10 +13,10 @@
 (def ow (.writer (ObjectMapper.)))
 
 (defn lang->data [o]
-  (read-str (.writeValueAsString ow o)))
+  (data.json/read-str (.writeValueAsString ow o)))
 
 (defn round-trip [v]
-  (read-str (json/write-str v)))
+  (data.json/read-str (json/write-str v)))
 
 (deftest query-encoding
   (let [db1   (Language/Database "db1")
