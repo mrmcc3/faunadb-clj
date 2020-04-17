@@ -13,5 +13,5 @@ something like metosin/jsonista. But I'll see how far I can get.
 - attempt macros.
 
 ```
-$ clojure -A:test -m kaocha.runner
+$ clojure -A:test
 ```

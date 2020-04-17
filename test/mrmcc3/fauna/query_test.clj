@@ -35,7 +35,6 @@
       (= (lang->data jvm) (round-trip clj))
 
       ;; Special Types
-      ;; https://docs.fauna.com/fauna/current/api/fql/types#special-types
 
       ;; --- Instant
       (Language/Value now)
@@ -284,6 +283,12 @@
         (Language/Arr [(Language/Value 2)]))
       (q/append [1] [2])
 
+      ;; --- prepend
+      (Language/Prepend
+        (Language/Arr [(Language/Value 1)])
+        (Language/Arr [(Language/Value 2)]))
+      (q/prepend [1] [2])
+
       ;; --- count
       (Language/Count (Language/Arr [(Language/Value 1)]))
       (q/count [1])
@@ -310,6 +315,12 @@
         (Language/Arr [(Language/Value 1)]))
       (q/drop 1 [1])
 
+      ;; --- take
+      (Language/Take
+        (Language/Value 1)
+        (Language/Arr [(Language/Value "a")]))
+      (q/take 1 ["a"])
+
       ;; --- is-empty
       (Language/IsEmpty (Language/Arr []))
       (q/is-empty [])
@@ -333,6 +344,54 @@
       ;; --- min
       (Language/Min [1 2 3])
       (q/min 1 2 3)
+
+      ;; --- map
+      (Language/Map (Language/Arr [1 2 3]) l1)
+      (q/map [1 2 3] l1')
+
+      ;; --- filter
+      (Language/Filter (Language/Arr [1 2 3]) l1)
+      (q/filter [1 2 3] l1')
+
+      ;; --- for-each
+      (Language/Foreach (Language/Arr [1 2 3]) l1)
+      (q/foreach [1 2 3] l1')
+
+      ;; --- reduce
+      (Language/Reduce l1 (Language/Value now) (Language/Arr [1 2 3]))
+      (q/reduce l1' now [1 2 3])
+
+      ;; --- events
+      (Language/Events c1)
+      (q/events c1')
+
+      ;; --- join
+      (Language/Join c1 c1)
+      (q/join c1' c1')
+
+      ;; --- match
+      (Language/Match (Language/Index "i"))
+      (q/match (q/index "i"))
+      (Language/Match (Language/Index "i") (Language/Value "v"))
+      (q/match (q/index "i") "v")
+
+      ;; --- range
+      (Language/Range
+        (Language/Match (Language/Index "i"))
+        (Language/Null)
+        (Language/Value now))
+      (q/range (q/match (q/index "i")) nil now)
+
+      ;; --- singleton
+      (Language/Singleton c1)
+      (q/singleton c1')
+
+      ;; --- to-object
+      (Language/ToObject
+        (Language/Arr
+          [(Language/Arr [1 2])
+           (Language/Arr [3 4])]))
+      (q/to-object [[1 2] [3 4]])
 
       ;; Logical
 

@@ -4,7 +4,9 @@
   (:refer-clojure
     :exclude
     [ref get remove replace update merge to-array count
-     distinct drop max min]))
+     distinct drop take max min map filter reduce range])
+  (:require
+    [clojure.core :as c]))
 
 ;; Basic
 
@@ -37,7 +39,7 @@
 (defn let'
   ""
   [bindings in] ^:op
-  {:let (map (fn [[k v]] ^:op {k v}) (partition 2 bindings))
+  {:let (c/map (fn [[k v]] ^:op {k v}) (c/partition 2 bindings))
    :in  in})
 
 (defn var'
@@ -240,9 +242,14 @@
   {:any vals})
 
 (defn append
-  "Tests whether any of the provided values are true"
+  "Adds items to the end of an array"
   [vals base] ^:op
   {:append vals :collection base})
+
+(defn prepend
+  "Adds items to the start of an array"
+  [vals base] ^:op
+  {:prepend vals :collection base})
 
 (defn count
   "Counts the items in an array or set"
@@ -274,6 +281,11 @@
   [n coll] ^:op
   {:drop n :collection coll})
 
+(defn take
+  "Fetches items from start of array"
+  [n coll] ^:op
+  {:take n :collection coll})
+
 (defn is-empty
   "Test whether an array is empty"
   [coll] ^:op
@@ -303,6 +315,56 @@
   "Returns the smallest value"
   [& args] ^:op
   {:min args})
+
+(defn map
+  "Applies a function to all array items"
+  [coll lambda] ^:op
+  {:map lambda :collection coll})
+
+(defn filter
+  "Fetches specific items from an array"
+  [coll lambda] ^:op
+  {:filter lambda :collection coll})
+
+(defn foreach
+  "Iterates over array items"
+  [coll lambda] ^:op
+  {:foreach lambda :collection coll})
+
+(defn reduce
+  "Reduces a collection using a lambda function"
+  [reducer init coll] ^:op
+  {:reduce reducer :initial init :collection coll})
+
+(defn events
+  "Returns the set of events describing the history of a set"
+  [set] ^:op
+  {:events set})
+
+(defn join
+  "Combines the items in a set with set's indexed values"
+  [source detail] ^:op
+  {:join source :with detail})
+
+(defn match
+  "Returns the set of items that match search terms"
+  ([index] ^:op {:match index})
+  ([index terms] ^:op {:match index :terms terms}))
+
+(defn range
+  "Returns a subset of a set, in the specific range"
+  [set from to] ^:op
+  {:range set :from from :to to})
+
+(defn singleton
+  "produces a set containing the ref that you provide"
+  [ref] ^:op
+  {:singleton ref})
+
+(defn to-object
+  "Converts an array to an object"
+  [arr] ^:op
+  {:to_object arr})
 
 ;; Set
 
