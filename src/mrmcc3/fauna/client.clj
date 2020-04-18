@@ -17,6 +17,8 @@
     (java.util Base64)
     (java.util.function Function)))
 
+(defonce last-seen-txn (atom 0))
+
 ;; request
 
 (defn basic-auth [secret]
@@ -30,32 +32,34 @@
 (defn json-pub [data]
   (-> data json/write-str HttpRequest$BodyPublishers/ofString))
 
-(defn http-request [{:keys [secret timeout data state]}]
+(defn http-request [{:keys [secret timeout query]}]
   (let [builder (HttpRequest/newBuilder (URI. "https://db.fauna.com"))]
-    (.method builder "POST" (json-pub data))
+    (.method builder "POST"
+             (json-pub query))
     (.header builder "Authorization" (basic-auth secret))
-    (.header builder "X-FaunaDB-API-Version" "2.11.0")
-    (when-let [t (:last-seen @state)]
-      (.header builder "X-Last-Seen-Txn" (str t)))
-    (.timeout builder (Duration/ofMillis (or timeout 10000)))
+    (.header builder "Content-Type" "application/json; charset=utf-8")
+    (.header builder "X-FaunaDB-API-Version" "2.7")
+    (when-let [last-seen @last-seen-txn]
+      (.header builder "X-Last-Seen-Txn" (str last-seen)))
+    (.timeout builder (Duration/ofMillis (or timeout 60000)))
     (.build builder)))
+
+(defn request-map [req]
+  (if (-> req meta :op)
+    {:query req}
+    req))
 
 ;; response
 
-(defn update-client-state
-  [{:keys [last-seen read-ops write-ops query-out]
-    :or   {last-seen 0 read-ops 0 write-ops 0 query-out 0}}
-   {:keys [x-txn-time x-read-ops x-write-ops x-query-bytes-out]
-    :or {x-txn-time 0 x-read-ops 0 x-write-ops 0 x-query-bytes-out 0}}]
-  {:last-seen (if (< last-seen x-txn-time) x-txn-time last-seen)
-   :read-ops  (+ read-ops x-read-ops)
-   :write-ops (+ write-ops x-write-ops)
-   :query-out (+ query-out x-query-bytes-out)})
+(defn largest [last-seen txn-time]
+  (if (< last-seen txn-time)
+    txn-time
+    last-seen))
 
 (def long-headers
   #{:x-query-bytes-in :x-query-bytes-out :x-read-ops :x-write-ops
     :x-storage-bytes-read :x-storage-bytes-write :x-query-time
-    :x-compute-ops :x-txn-retries :x-txn-time})
+    :x-compute-ops :x-txn-retries :x-txn-time :content-length})
 
 (defn header [[k [v]]]
   (let [k' (keyword k)]
@@ -64,49 +68,47 @@
 (defn headers-map [^HttpResponse response]
   (into {} (map header) (-> response (.headers) (.map))))
 
-(defn json-response [^HttpResponse response {:keys [state]}]
-  (let [headers  (headers-map response)
-        response (with-meta
-                   (json/read-str (.body response))
-                   headers)]
-    (swap! state update-client-state headers)
-    (if (:errors response)
-      (throw (ex-info "FQL Error" response))
-      response)))
+(defn json-response [^HttpResponse response {:keys [tap?]}]
+  (let [{:keys [x-txn-time] :as headers} (headers-map response)
+        {:keys [errors resource]} (json/read-str (.body response))]
+    (when tap?
+      (tap> ^::response-headers headers))
+    (when x-txn-time
+      (swap! last-seen-txn largest x-txn-time))
+    (if errors
+      (throw (ex-info "FQL Error" {:errors errors}))
+      resource)))
 
 ;; client
 
-(defn http-client [{:keys [timeout]}]
+(defn http-client [{:keys [conn-timeout]}]
   (-> (HttpClient/newBuilder)
-      (.connectTimeout (Duration/ofMillis (or timeout 10000)))
+      (.connectTimeout (Duration/ofMillis (or conn-timeout 10000)))
       (.version HttpClient$Version/HTTP_1_1)
       (.build)))
 
 ;; public api
 
-(defn client [{:keys [secret] :as opts}]
+(defn client [{:keys [secret timeout] :as opts}]
   {:http-client (http-client opts)
-   :secret      (or secret (System/getenv "FAUNADB_SECRET"))
-   :state       (atom {})})
+   :secret      secret
+   :timeout     timeout
+   :tap?        (:tap? opts true)})
 
-(defn invoke [client request]
-  (-> (:http-client client)
-      (.send (http-request (merge client request))
-             (HttpResponse$BodyHandlers/ofString))
-      (json-response client)))
+(defn query [client req]
+  (let [request (merge client (request-map req))]
+    (-> (:http-client client)
+        (.send (http-request request)
+               (HttpResponse$BodyHandlers/ofString))
+        (json-response client))))
 
-(defn invoke-async [client request]
-  (-> (.sendAsync
-        (:http-client client)
-        (http-request (merge client request))
-        (HttpResponse$BodyHandlers/ofString))
-      (.thenApply
-        (reify Function
-          (apply [_ response]
-            (json-response response client))))))
-
-(defn query [client data]
-  (invoke client {:data data}))
-
-(defn state [client]
-  @(:state client))
+(defn query-async [client req]
+  (let [request (merge client (request-map req))]
+    (-> (.sendAsync
+          (:http-client client)
+          (http-request request)
+          (HttpResponse$BodyHandlers/ofString))
+        (.thenApply
+          (reify Function
+            (apply [_ response]
+              (json-response response client)))))))

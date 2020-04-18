@@ -5,12 +5,17 @@
 
 ;; define a client - will load FAUNADB_SECRET env var
 
-(def admin-client (c/client {}))
+(def admin-client
+  (c/client
+    {:secret (System/getenv "FAUNADB_SECRET")}))
 
 (c/query
   admin-client
   (q/create-database
     {:name "my_db"}))
+
+(def my-db
+  (q/database "my_db"))
 
 ;; create an admin key for my_db
 
@@ -18,7 +23,7 @@
   admin-client
   (q/create-key
     {:role     :admin
-     :database (q/database "my_db")
+     :database my-db
      :name     "my_db_admin"}))
 
 (def my-db-client
@@ -41,6 +46,9 @@
     {:name   "posts_by_title"
      :source posts
      :terms  [{:field [:data :title]}]}))
+
+(def posts-by-title
+  (q/index "posts_by_title"))
 
 ;; add data
 
@@ -66,13 +74,11 @@
 
 (query
   (q/get
-    (q/match
-      (q/index "posts_by_title")
-      "My cat and other marvels")))
+    (q/match posts-by-title "Deep meanings in a latte")))
 
 ;; cleanup
 
 (c/query
   admin-client
-  (q/delete (q/database "my_db")))
+  (q/delete my-db))
 
