@@ -22,17 +22,18 @@
 
 ;; create an admin key for my_db
 
-(c/query
-  admin-client
-  (q/create-key
-    {:role     :admin
-     :database my-db
-     :name     "my_db_admin"}))
+(def my-db-key
+  (c/query
+    admin-client
+    (q/create-key
+      {:role     :admin
+       :database my-db
+       :name     "my_db_admin"})))
 
 ;; create a client for the child db and a helper query fn
 
 (def my-db-client
-  (c/client {:secret ""}))
+  (c/client {:secret (:secret my-db-key)}))
 
 (def query (partial c/query my-db-client))
 
@@ -92,6 +93,13 @@
     (q/match posts-by-title "Deep meanings in a latte")))
 
 ;; cleanup
+
+(c/query
+  admin-client
+  (q/delete
+    (q/ref
+      (q/keys)
+      (get-in my-db-key [:ref "@ref" :id]))))
 
 (c/query
   admin-client
