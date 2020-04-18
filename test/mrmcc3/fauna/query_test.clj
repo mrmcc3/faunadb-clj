@@ -1,6 +1,7 @@
 (ns mrmcc3.fauna.query-test
   (:require
     [mrmcc3.fauna.query :as q]
+    [mrmcc3.fauna.macros :as m]
     [mrmcc3.fauna.json :as json]
     [clojure.data.json :as data.json]
     [clojure.test :refer :all]
@@ -488,3 +489,24 @@
 
     ))
 
+(deftest macros
+  (let [posts (q/collection "posts")]
+    (are [a b]
+      (= a b)
+
+      (q/map
+        ["My cat and other marvels"
+         "Pondering during a commute"
+         "Deep meanings in a latte"]
+        (q/lambda
+          ["title"]
+          (q/create
+            posts
+            {:data {:title (q/var' "title")}})))
+      (m/map
+        (m/fn [title] (q/create posts {:data {:title title}}))
+        ["My cat and other marvels"
+         "Pondering during a commute"
+         "Deep meanings in a latte"])
+
+      )))
