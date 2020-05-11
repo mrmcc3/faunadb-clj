@@ -63,12 +63,15 @@
 (defn database
   "Returns the ref for a database"
   ([name] ^:op {:database name})
-  ([name database] ^:op {:database name :scope database}))
+  ([name scope]
+   (if scope
+     ^:op {:database name :scope scope}
+     (database name))))
 
 (defn databases
   "Returns an array of refs for all collections"
   ([] (databases nil))
-  ([database] ^:op {:databases database}))
+  ([scope] ^:op {:databases scope}))
 
 (defn move-database
   "Moves a database into another, parent database"
@@ -78,42 +81,54 @@
 (defn collection
   "Returns the ref for a collection"
   ([name] ^:op {:collection name})
-  ([name database] ^:op {:collection name :scope database}))
+  ([name scope]
+   (if scope
+     ^:op {:collection name :scope scope}
+     (collection name))))
 
 (defn collections
   "Returns an array of refs for all collections"
   ([] (collections nil))
-  ([database] ^:op {:collections database}))
+  ([scope] ^:op {:collections scope}))
 
 (defn function
   "Returns the ref for a user defined function"
   ([name] ^:op {:function name})
-  ([name database] ^:op {:function name :scope database}))
+  ([name scope]
+   (if scope
+     ^:op {:function name :scope scope}
+     (function name))))
 
 (defn functions
   "Returns an array of refs for all user-defined functions"
   ([] (functions nil))
-  ([database] ^:op {:functions database}))
+  ([scope] ^:op {:functions scope}))
 
 (defn index
   "Returns the ref for an index"
   ([name] ^:op {:index name})
-  ([name database] ^:op {:index name :scope database}))
+  ([name scope]
+   (if scope
+     ^:op {:index name :scope scope}
+     (index name))))
 
 (defn indexes
   "Returns an array of refs for all indexes"
   ([] (indexes nil))
-  ([database] ^:op {:indexes database}))
+  ([scope] ^:op {:indexes scope}))
 
 (defn role
   "Returns the ref for a user-defined role"
   ([name] ^:op {:role name})
-  ([name database] ^:op {:role name :scope database}))
+  ([name scope]
+   (if scope
+     ^:op {:role name :scope scope}
+     (role name))))
 
 (defn roles
   "Returns an array of refs for all user-defined roles"
   ([] (roles nil))
-  ([database] ^:op {:roles database}))
+  ([scope] ^:op {:roles scope}))
 
 (defn documents
   "Returns the set of documents within a collection"
@@ -442,6 +457,11 @@
   "Retrieves keys associated with the specified database"
   ([] (keys nil))
   ([db] ^:op {:keys db}))
+
+(defn tokens
+  "Retrieves tokens associated with the specified database"
+  ([] (tokens nil))
+  ([db] ^:op {:tokens db}))
 
 (defn login
   "Creates an auth token for an identity"

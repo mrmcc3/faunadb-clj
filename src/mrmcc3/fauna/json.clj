@@ -3,7 +3,8 @@
   {:author "Michael McClintock"}
   (:require
     [clojure.data.json :as json]
-    [clojure.walk :as walk])
+    [clojure.walk :as walk]
+    [mrmcc3.fauna.query :as q])
   (:import
     (java.util Date Base64)
     (java.time Instant LocalDate)
@@ -50,7 +51,22 @@
 (defn write-str [data]
   (json/write-str (walk/postwalk encode-fql data)))
 
-;; only support special types for now. not sure what to do here yet
+(defn decode-ref [{{:keys [collection id database]} "@ref" :as v}]
+  (cond
+    (= collection {"@ref" {:id "databases"}})
+    (q/database id database)
+    (= collection {"@ref" {:id "collections"}})
+    (q/collection id database)
+    (= collection {"@ref" {:id "functions"}})
+    (q/function id database)
+    (= collection {"@ref" {:id "indexes"}})
+    (q/index id database)
+    (= collection {"@ref" {:id "roles"}})
+    (q/role id database)
+    collection
+    (q/ref collection id)
+    :else v))
+
 (defn decode-fql [v]
   (cond
     (not (map? v)) v
@@ -61,6 +77,8 @@
       (.parse (DateTimeFormatter/ISO_OFFSET_DATE_TIME) (get v "@ts")))
     (contains? v "@date")
     (LocalDate/parse (get v "@date"))
+    (contains? v "@ref")
+    (decode-ref v)
     :else v))
 
 (defn key-fn [k]

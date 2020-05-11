@@ -69,14 +69,12 @@
 
 (defn- json-response [^HttpResponse response {:keys [tap?]}]
   (let [{:keys [x-txn-time] :as headers} (headers-map response)
-        {:keys [errors resource]} (json/read-str (.body response))]
+        {:keys [resource] :as result} (json/read-str (.body response))]
     (when tap?
       (tap> ^::response-headers headers))
     (when x-txn-time
       (swap! last-seen-txn largest x-txn-time))
-    (if errors
-      (throw (ex-info "FQL Error" {:errors errors}))
-      resource)))
+    (or resource result)))
 
 ;; http client
 

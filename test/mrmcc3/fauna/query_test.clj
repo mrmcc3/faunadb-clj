@@ -16,8 +16,11 @@
 (defn lang->data [o]
   (data.json/read-str (.writeValueAsString ow o)))
 
-(defn round-trip [v]
+(defn round-trip-encode [v]
   (data.json/read-str (json/write-str v)))
+
+(defn round-trip-decode [v]
+  (json/read-str (data.json/write-str v)))
 
 (deftest query-encoding
   (let [db1   (Language/Database "db1")
@@ -33,7 +36,7 @@
         obj1  (Language/Obj "data" (Language/Obj "name" (Language/Value "n")))
         obj1' {:data {:name "n"}}]
     (are [jvm clj]
-      (= (lang->data jvm) (round-trip clj))
+      (= (lang->data jvm) (round-trip-encode clj))
 
       ;; Special Types
 
@@ -460,6 +463,12 @@
       (Language/Keys db1)
       (q/keys db1')
 
+      ;; --- tokens (not in docs?)
+      (Language/Tokens)
+      (q/tokens)
+      (Language/Tokens db1)
+      (q/tokens db1')
+
       ;; --- login
       (Language/Login (Language/Ref c1 "1") obj1)
       (q/login (q/ref c1' "1") obj1')
@@ -478,14 +487,19 @@
 
       ;; Type Checks
 
-      ))
+      )))
 
-  (comment
+(deftest response-decoding
+  (are [a b]
+    (= (round-trip-decode a) b)
 
-    (lang->data
-      (Language/At
-        (Instant/now)
-        (Language/Value "f")))
+    {"@ref" {:id "users" :collection {"@ref" {:id "collections"}}}}
+    (q/collection "users")
+
+
+    {"@ref" {:id         "264933792182960650",
+             :collection {"@ref" {:id "users", :collection {"@ref" {:id "collections"}}}}}}
+    (q/ref (q/collection "users") "264933792182960650")
 
     ))
 
