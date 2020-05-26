@@ -502,6 +502,12 @@
   [start finish unit] ^:op
   {:time_diff start :other finish :unit unit})
 
+(defn epoch
+  "Creates a timestamp from an offset since 1970-01-01 in seconds,
+  milliseconds, microseconds, or nanoseconds."
+  [offset unit] ^:op
+  {:epoch offset :unit unit})
+
 ;; Conversion
 
 ;; Math

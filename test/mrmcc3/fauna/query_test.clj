@@ -494,6 +494,9 @@
       (Language/TimeDiff (Language/Now) (Language/Now) "hours")
       (q/time-diff (q/now) (q/now) "hours")
 
+      (Language/Epoch 1590489809930000 "microseconds")
+      (q/epoch 1590489809930000 "microseconds")
+
       ;; Conversion
 
       ;; Math
