@@ -479,7 +479,20 @@
 
       ;; String
 
+      (Language/FindStr "abc" "a")
+      (q/find-str "abc" "a")
+      (Language/FindStrRegex "abc" "^abc$")
+      (q/find-str-regex "abc" "^abc$")
+      (Language/ContainsStrRegex "abc" "^abc$")
+      (q/contains-str-regex "abc" "^abc$")
+
       ;; Time
+
+      (Language/Now)
+      (q/now)
+
+      (Language/TimeDiff (Language/Now) (Language/Now) "hours")
+      (q/time-diff (q/now) (q/now) "hours")
 
       ;; Conversion
 

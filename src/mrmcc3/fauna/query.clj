@@ -475,7 +475,32 @@
 
 ;; String
 
+(defn contains-str-regex
+  "Tests whether a string contains a specific pattern"
+  [string pattern] ^:op
+  {:containsstrregex string :pattern pattern})
+
+(defn find-str-regex
+  "Searches for a regex pattern within a string"
+  [string pattern] ^:op
+  {:findstrregex string :pattern pattern})
+
+(defn find-str
+  "Searches for a string within a string"
+  [string find] ^:op
+  {:findstr string :find find})
+
 ;; Time
+
+(defn now
+  "Returns a timestamp representing the current transaction time"
+  [] ^:op
+  {:now nil})
+
+(defn time-diff
+  "Returns the difference between two timestamps/dates, in specified units"
+  [start finish unit] ^:op
+  {:time_diff start :other finish :unit unit})
 
 ;; Conversion
 
