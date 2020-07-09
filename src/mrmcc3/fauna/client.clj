@@ -14,20 +14,11 @@
       HttpResponse$BodyHandlers)
     (java.net URI)
     (java.time Duration)
-    (java.util Base64)
     (java.util.function Function)))
 
 (defonce ^:private last-seen-txn (atom 0))
 
 ;; request
-
-(defn- basic-auth [secret]
-  (as-> secret $
-    (str $ ":")
-    (.getBytes $ "US-ASCII")
-    (.encode (Base64/getEncoder) ^bytes $)
-    (String. ^bytes $ "US-ASCII")
-    (str "Basic " $)))
 
 (defn- json-pub [data]
   (-> data json/write-str HttpRequest$BodyPublishers/ofString))
@@ -35,7 +26,7 @@
 (defn- http-request [{:keys [secret timeout query]}]
   (let [builder (HttpRequest/newBuilder (URI. "https://db.fauna.com"))]
     (.method builder "POST" (json-pub query))
-    (.header builder "Authorization" (basic-auth secret))
+    (.header builder "Authorization" (str "Bearer " secret))
     (.header builder "Content-Type" "application/json; charset=utf-8")
     (.header builder "X-FaunaDB-API-Version" "2.7")
     (when-let [last-seen @last-seen-txn]

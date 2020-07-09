@@ -5,6 +5,8 @@
     [clojure.alpha.spec :as s]
     [mrmcc3.fauna.query :as q]))
 
+;; WIP
+
 (s/def ::new-id-schema
   (s/schema {:new_id nil?}))
 

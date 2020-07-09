@@ -10,9 +10,11 @@ production use cases which can be used from clojure (via interop).
 
 ### Motivation
 
+At this stage it's just to explore FQL in clojure.
+
 ### Planned Features
 
 - minimal dep requirements. Java 11, Clojure, data.json
-- FQL implemented asclojure functions returning data marked with ^:op
+- FQL implemented as clojure functions
 - Macros for making FQL more like familiar clojure
 - Spec validated FQL at dev time
