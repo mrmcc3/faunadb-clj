@@ -20,7 +20,10 @@
   "Executes a user-defined function"
   [function & args] ^:op
   {:call      function
-   :arguments (if (next args) args (first args))})
+   :arguments (case (c/count args)
+                0 []
+                1 (first args)
+                args)})
 
 (defn do'
   "Execute expressions in order"

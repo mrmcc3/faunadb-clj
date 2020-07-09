@@ -59,6 +59,8 @@
       (q/at now "f")
 
       ;; --- call
+      (Language/Call (Language/Function "f") [])
+      (q/call (q/function "f"))
       (Language/Call (Language/Function "f") [(Language/Value 1)])
       (q/call (q/function "f") 1)
       (Language/Call
