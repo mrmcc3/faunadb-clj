@@ -58,14 +58,12 @@
 (defn- headers-map [^HttpResponse response]
   (into {} (map header) (-> response (.headers) (.map))))
 
-(defn- json-response [^HttpResponse response {:keys [tap?]}]
+(defn- json-response [^HttpResponse response client]
   (let [{:keys [x-txn-time] :as headers} (headers-map response)
-        {:keys [resource] :as result} (json/read-str (.body response))]
-    (when tap?
-      (tap> ^::response-headers headers))
+        result (json/read-str (.body response))]
     (when x-txn-time
       (swap! last-seen-txn largest x-txn-time))
-    (or resource result)))
+    (with-meta result {::response-headers headers})))
 
 ;; http client
 
@@ -82,13 +80,11 @@
 
   :secret - A FaunaDB secret (required)
   :conn-timeout - Http connection timeout (default 10s)
-  :timeout - Default http request timeout (default 60s)
-  :tap? - whether to tap> per query metrics (default true)"
+  :timeout - Default http request timeout (default 60s)"
   [{:keys [secret] :as opts}]
   {:http-client (http-client opts)
    :secret      secret
-   :timeout     (:timeout opts)
-   :tap?        (:tap? opts true)})
+   :timeout     (:timeout opts)})
 
 (defn query
   "Send a query to the Fauna API using the provided `client`.
@@ -97,8 +93,7 @@
 
   :query - the query op
   :secret - override the client secret
-  :timeout - override the client request timeout
-  :tap? - override the client tap? behaviour"
+  :timeout - override the client request timeout"
   [client req]
   (let [request (merge client (request-map req))]
     (-> (:http-client client)
